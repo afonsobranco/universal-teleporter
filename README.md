@@ -57,10 +57,6 @@ https://afonsobranco.github.io/universal-teleporter/
 - Multi-value paste — paste a column of numbers, all get converted
 - Rotating placeholder examples
 
-## Usage
-
-Open `universal-teleporter.html` in any modern browser. No server, no install.
-
 ## Keyboard shortcuts
 
 | Key | Action |
