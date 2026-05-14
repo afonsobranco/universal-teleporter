@@ -2,6 +2,9 @@
 
 A self-contained unit and currency converter — single HTML file, no dependencies, no build step.
 
+## Live
+https://afonsobranco.github.io/universal-teleporter/
+
 ## Features
 
 ### Input modes
