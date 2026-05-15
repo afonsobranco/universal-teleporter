@@ -389,7 +389,7 @@ const GECKO={'bitcoin':'btc','ethereum':'eth','tether':'usdt','binancecoin':'bnb
 // ── LIVE DATA ────────────────────────────────────────────
 async function fetchFX(){
   try{
-    const r=await fetch('https://api.frankfurter.app/latest?from=USD');
+    const r=await fetch('https://open.er-api.com/v6/latest/USD');
     if(!r.ok)throw 0;
     const d=await r.json();
     for(const[s,v] of Object.entries(d.rates)){const k=s.toLowerCase();if(CAT.currency.units[k])CAT.currency.units[k].rate=v;}
