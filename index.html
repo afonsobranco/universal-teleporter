@@ -329,7 +329,7 @@ const CAT={
     units:{b:{label:'Bytes',sym:'B',f:1},kb:{label:'Kilobytes',sym:'KB',f:1024},mb:{label:'Megabytes',sym:'MB',f:1048576},gb:{label:'Gigabytes',sym:'GB',f:1073741824},tb:{label:'Terabytes',sym:'TB',f:1099511627776},pb:{label:'Petabytes',sym:'PB',f:1.126e15}},
     sugg:{mb:['gb','kb','b'],gb:['tb','mb','kb'],tb:['gb','pb','mb'],kb:['mb','b','gb'],b:['kb','mb','gb'],pb:['tb','gb','mb']}},
   currency:{label:'Currency',color:'#FF2D55',special:'currency',liveStatus:'loading',lastUpdate:null,
-    units:{usd:{label:'US Dollar',sym:'$',rate:1},eur:{label:'Euro',sym:'€',rate:.92},gbp:{label:'British Pound',sym:'£',rate:.79},jpy:{label:'Japanese Yen',sym:'¥',rate:149.5},cad:{label:'Canadian Dollar',sym:'CA$',rate:1.36},aud:{label:'Aust. Dollar',sym:'A$',rate:1.53},chf:{label:'Swiss Franc',sym:'Fr',rate:.88},cny:{label:'Chinese Yuan',sym:'CN¥',rate:7.24},inr:{label:'Indian Rupee',sym:'₹',rate:83.1},mxn:{label:'Mexican Peso',sym:'MX$',rate:17.2},brl:{label:'Brazilian Real',sym:'R$',rate:4.97},krw:{label:'Korean Won',sym:'₩',rate:1325},sgd:{label:'Singapore $',sym:'S$',rate:1.34},hkd:{label:'HK Dollar',sym:'HK$',rate:7.82},nok:{label:'Norwegian Krone',sym:'NOK',rate:10.6},sek:{label:'Swedish Krona',sym:'SEK',rate:10.4}},
+    units:{usd:{label:'US Dollar',sym:'$',rate:1},eur:{label:'Euro',sym:'€',rate:.92},gbp:{label:'British Pound',sym:'£',rate:.79},jpy:{label:'Japanese Yen',sym:'¥',rate:149.5},cad:{label:'Canadian Dollar',sym:'CA$',rate:1.36},aud:{label:'Aust. Dollar',sym:'A$',rate:1.53},chf:{label:'Swiss Franc',sym:'Fr',rate:.88},cny:{label:'Chinese Yuan',sym:'CN¥',rate:7.24},inr:{label:'Indian Rupee',sym:'₹',rate:83.1},mxn:{label:'Mexican Peso',sym:'MX$',rate:17.2},brl:{label:'Brazilian Real',sym:'R$',rate:4.97},krw:{label:'Korean Won',sym:'₩',rate:1325},sgd:{label:'Singapore $',sym:'S$',rate:1.34},hkd:{label:'HK Dollar',sym:'HK$',rate:7.82},nok:{label:'Norwegian Krone',sym:'NOK',rate:10.6},sek:{label:'Swedish Krona',sym:'SEK',rate:10.4},dkk:{label:'Danish Krone',sym:'kr',rate:6.9}},
     sugg:{usd:['eur','gbp','jpy'],eur:['usd','gbp','jpy'],gbp:['usd','eur','jpy'],jpy:['usd','eur','gbp'],inr:['usd','eur','gbp'],cad:['usd','eur','gbp'],aud:['usd','eur','gbp'],cny:['usd','eur','jpy'],mxn:['usd','eur','gbp'],brl:['usd','eur','gbp'],krw:['usd','eur','jpy'],chf:['usd','eur','gbp']}},
   crypto:{label:'Crypto',color:'#F7931A',special:'crypto',liveStatus:'loading',lastUpdate:null,
     sugg:{btc:['usd','eur','gbp'],eth:['usd','eur','btc'],sol:['usd','btc','eth'],bnb:['usd','btc','eth'],xrp:['usd','ada','xlm'],doge:['usd','shib','xrp'],avax:['usd','sol','eth'],ada:['usd','xrp','dot'],link:['usd','uni','eth'],ltc:['usd','btc','bch'],dot:['usd','ada','avax'],shib:['usd','doge','xrp'],matic:['usd','eth','avax'],near:['usd','sol','eth'],trx:['usd','xrp','ada']},
@@ -361,6 +361,7 @@ const ALIAS={kilometer:'km',kilometers:'km',kilometre:'km',kilometres:'km',meter
 'swiss franc':'chf','swiss francs':'chf',
 'japanese yen':'jpy','chinese yuan':'cny','hong kong dollar':'hkd',
 'singapore dollar':'sgd','norwegian krone':'nok','swedish krona':'sek',
+'danish krone':'dkk','danish kroner':'dkk','danish crown':'dkk',
 'south korean won':'krw','indian rupee':'inr','mexican peso':'mxn',
 'brazilian real':'brl',
 // pressure
