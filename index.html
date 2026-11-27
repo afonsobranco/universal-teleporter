@@ -471,9 +471,20 @@ const RM=/^([\d,]+\.?\d*)\s*([°º]?[a-zA-Z°º²³\/]+(?:\s+[a-zA-Z]+)?)\s*(?:(
 const RU=/^([a-zA-Z°]+(?:\s+[a-zA-Z]+)?)\s*(?:(?:to|in|→)\s*([a-zA-Z°]+))?$/i;
 
 const POUNDISH=['pound','pounds','libra','libras'];
+// Currency symbols → codes. Multi-character symbols first so "R$" isn't read as "$".
+const SYM2CODE=[['us$','usd'],['r$','brl'],['ca$','cad'],['nz$','nzd'],['hk$','hkd'],['mx$','mxn'],['a$','aud'],['s$','sgd'],['cn¥','cny'],['zł','pln'],
+  ['€','eur'],['$','usd'],['£','gbp'],['¥','jpy'],['₹','inr'],['₩','krw'],['₪','ils'],['₽','rub'],['₺','try'],['₱','php'],['₫','vnd'],['฿','thb'],['₴','uah'],['₦','ngn']];
+const _reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 function prepInput(raw){
   // Strip accents so "quilómetros", "dólares", "chávenas" match the ASCII-only unit regex
   let t=raw.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  // Currency symbols (speech recognition often writes "euros" as "€"): "€2" / "2€" / "para €" → codes
+  for(const[s,c] of SYM2CODE){
+    if(!t.includes(s))continue;
+    const e=_reEsc(s);
+    t=t.replace(new RegExp(e+'\\s*(\\d[\\d.,]*)','g'),(_,n)=>n+' '+c+' ').replace(new RegExp(e,'g'),' '+c+' ');
+  }
+  t=t.replace(/\s+/g,' ').trim();
   // Portuguese multi-word units -> compact tokens (the unit regex allows at most two words)
   t=t.replace(/colher(es)? de sopa/g,'tbsp').replace(/colher(es)? de cha/g,'tsp')
      .replace(/(quilometros?|km) por hora/g,'kph').replace(/milhas? por hora/g,'mph')
@@ -481,6 +492,9 @@ function prepInput(raw){
      .replace(/quilometros? por litro/g,'kml').replace(/milhas? por galao/g,'mpg')
      .replace(/litros? (aos|por) 100 ?(km|quilometros)|l\/100 ?km|\bl100\b/g,'lhkm')
      .replace(/dolar(es)? de singapura/g,'sgd').replace(/dolar(es)? de hong kong/g,'hkd');
+  // Spelled-out numbers work when typed too: "dois euros", "vinte e cinco km", "twenty five km"
+  t=normalizeEN(ptWordsToNum(t.replace(/\s+/g,' '))).replace(/(\d)\s*(virgula|ponto)\s*(\d)/g,'$1.$3')
+     .replace(/(\d+(?:\.\d+)?) ([a-z]+) e 0\.5\b/g,(_,n,u)=>(parseFloat(n)+.5)+' '+u);
   // Portuguese connectors: "para" / "em" -> "to"
   return t.replace(/\s+(para|em)\s+/g,' to ');
 }
@@ -553,8 +567,8 @@ const $ch=$id('ch'),$chcl=$id('chcl');
 const $tbtn=$id('tbtn'),$hbtn=$id('hbtn');
 
 // ── UI HELPERS ───────────────────────────────────────────
-function setGhost(typed,suffix){const e=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');$ghost.innerHTML='<span style="color:transparent;white-space:pre">'+e(typed)+'</span>'+e(suffix);}
-function clearGhost(){$ghost.innerHTML='';}
+function setGhost(typed,suffix){const e=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');$ghost.innerHTML='<span style="color:transparent;white-space:pre">'+e(typed)+'</span>'+e(suffix);fitInput();}
+function clearGhost(){$ghost.innerHTML='';fitInput();}
 function setBadge(ck){const c=CAT[ck];$cb.textContent=c.label;$cb.style.background=c.color+'1A';$cb.style.color=c.color;$cb.classList.add('vis');}
 function clearBadge(){$cb.classList.remove('vis');}
 function setHint(msg,col){$hint.textContent=msg;$hint.style.color=col||'var(--sub)';}
@@ -726,7 +740,7 @@ let _phi=0;
 function cyclePH(){
   if(!$inp.value){
     $inp.style.opacity='0';
-    setTimeout(()=>{if(!$inp.value)$inp.placeholder=tr('phs')[_phi%tr('phs').length];$inp.style.opacity='1';_phi++;},280);
+    setTimeout(()=>{if(!$inp.value){$inp.placeholder=tr('phs')[_phi%tr('phs').length];fitInput();}$inp.style.opacity='1';_phi++;},280);
   }
   setTimeout(cyclePH,3600);
 }
@@ -1153,7 +1167,7 @@ function applyLang(){
   }
   renderGuide();updateSbar();
   populateAlertSelect();renderAlertList();renderPortfolio();
-  if($inp.value)processInput(false);else setHint('');
+  if($inp.value)processInput(false);else{setHint('');fitInput();}
   if(ST.cardOpen&&_cur){
     const c=CAT[_cur.displayCat||_cur.category];
     $rct.textContent=c.label+' · '+(CAT[_cur.category].units[_cur.fromUnit]?.sym||_cur.fromUnit);
@@ -1210,6 +1224,28 @@ for(const[k,r] of Object.entries(EXTRA_FIAT))addCurrency(k.toUpperCase(),r);
 for(const[a,k] of Object.entries(FIAT_ALIASES))if(!ALIAS[a]&&!getCat(a))ALIAS[a]=k;
 // Intl names for the original currencies too ("yen japonês", "polish zloty" style lookups)
 for(const k of Object.keys(CAT.currency.units)){addAlias(curName(DN_EN,k.toUpperCase()),k);addAlias(curName(DN_PT,k.toUpperCase()),k,true);}
+
+// ── AUTO-FIT INPUT ───────────────────────────────────────
+// Shrinks the input + ghost text so the whole query and its result fit on one line.
+var _fitEl;
+function fitInput(){
+  if(!$inp||!$ghost)return;
+  const avail=$inp.clientWidth;if(!avail)return;
+  $inp.style.fontSize='';$ghost.style.fontSize='';
+  const cs=getComputedStyle($inp),base=parseFloat(cs.fontSize);if(!base)return;
+  // keep the box height fixed so the layout doesn't jump while text shrinks
+  $inp.parentElement.style.minHeight=Math.ceil(base*1.2)+'px';
+  if(!_fitEl){_fitEl=document.createElement('span');_fitEl.setAttribute('aria-hidden','true');_fitEl.style.cssText='position:absolute;left:-9999px;top:0;visibility:hidden;white-space:pre;pointer-events:none';document.body.appendChild(_fitEl);}
+  _fitEl.style.fontFamily=cs.fontFamily;_fitEl.style.fontWeight=cs.fontWeight;_fitEl.style.letterSpacing=cs.letterSpacing;_fitEl.style.fontSize=base+'px';
+  _fitEl.textContent=$ghost.textContent||$inp.value||$inp.placeholder||'';
+  const w=_fitEl.getBoundingClientRect().width;
+  if(w>avail){const size=Math.max(15,Math.floor(base*avail/w*0.97));$inp.style.fontSize=size+'px';$ghost.style.fontSize=size+'px';}
+  syncGhostScroll();
+}
+// If the text still overflows at the minimum size, keep the ghost aligned with the input's scroll
+function syncGhostScroll(){$ghost.style.transform=$inp.scrollLeft?'translateX('+(-$inp.scrollLeft)+'px)':'';}
+['keyup','click','scroll','select','focus'].forEach(ev=>$inp.addEventListener(ev,syncGhostScroll));
+window.addEventListener('resize',()=>{if(!$inp.value)fitInput();});
 
 // ── INIT ─────────────────────────────────────────────────
 loadST();
